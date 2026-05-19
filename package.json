@@ -1,0 +1,60 @@
+{
+  "name": "it-event-platform",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:backend": "turbo run dev --filter=!@event-platform/frontend",
+    "dev:frontend": "turbo run dev --filter=@event-platform/frontend",
+    "dev:gateway": "npm run dev --workspace=apps/api-gateway",
+    "dev:users": "npm run dev --workspace=apps/user-service",
+    "dev:events": "npm run dev --workspace=apps/event-service",
+    "dev:registrations": "npm run dev --workspace=apps/registration-service",
+    "dev:email": "npm run dev --workspace=apps/email-service",
+    "dev:checkin": "npm run dev --workspace=apps/checkin-service",
+    "dev:analytics": "npm run dev --workspace=apps/analytics-service",
+    "dev:tasks": "npm run dev --workspace=apps/task-service",
+    "dev:support": "npm run dev --workspace=apps/support-service",
+    "dev:networking": "npm run dev --workspace=apps/networking-service",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "infra:up": "docker compose -f docker-compose.infra.yml up -d",
+    "infra:down": "docker compose -f docker-compose.infra.yml down",
+    "infra:reset": "docker compose -f docker-compose.infra.yml down -v && docker compose -f docker-compose.infra.yml up -d",
+    "seed:demo": "node scripts/seed-demo.mjs",
+    "docker:dev": "docker-compose -f docker-compose.yml up --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build -d",
+    "setup": "bash setup.sh"
+  },
+  "dependencies": {
+    "@nestjs/platform-express": "^11.1.19"
+  },
+  "devDependencies": {
+    "turbo": "^1.13.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.0",
+    "@types/node": "^20.11.0",
+    "eslint": "^8.56.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

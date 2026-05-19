@@ -1,0 +1,245 @@
+### IT Event Platform - API Test File
+### Requires: REST Client extension (humao.rest-client)
+
+@baseUrl = http://localhost:3000/api/v1
+@token = YOUR_JWT_TOKEN_HERE
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTH
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "organizer@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "company": "Tech Corp",
+  "jobTitle": "Event Manager",
+  "role": "organizer"
+}
+
+###
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "organizer@example.com",
+  "password": "password123"
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EVENTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### List all events
+GET {{baseUrl}}/events
+Authorization: Bearer {{token}}
+
+###
+
+### Create an event
+POST {{baseUrl}}/events?organizerId=1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Tech Summit 2025",
+  "description": "Annual technology conference",
+  "startDate": "2025-09-01T09:00:00Z",
+  "endDate": "2025-09-02T18:00:00Z",
+  "venue": "Palais des Congrès",
+  "city": "Paris",
+  "country": "France",
+  "maxParticipants": 500,
+  "basePrice": 199.99,
+  "currency": "EUR",
+  "earlyBirdDeadline": "2025-07-01T00:00:00Z",
+  "earlyBirdPrice": 99.99
+}
+
+###
+
+### Get event by ID
+GET {{baseUrl}}/events/1
+Authorization: Bearer {{token}}
+
+###
+
+### Publish event
+PATCH {{baseUrl}}/events/1/publish
+Authorization: Bearer {{token}}
+
+###
+
+### Get event stats
+GET {{baseUrl}}/events/1/stats
+Authorization: Bearer {{token}}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# USERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### List all users
+GET {{baseUrl}}/users?page=1&limit=20
+Authorization: Bearer {{token}}
+
+###
+
+### Get user by ID
+GET {{baseUrl}}/users/1
+Authorization: Bearer {{token}}
+
+###
+
+### Update user
+PUT {{baseUrl}}/users/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "bio": "Experienced event organizer",
+  "linkedinUrl": "https://linkedin.com/in/johndoe"
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REGISTRATIONS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Create registration
+POST {{baseUrl}}/registrations
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "eventId": 1,
+  "userId": 1,
+  "formData": {
+    "dietary_requirements": "vegetarian",
+    "company_type": "sponsor",
+    "session_preference": "workshops"
+  },
+  "userData": {
+    "company_type": "sponsor"
+  },
+  "eventData": {
+    "id": 1
+  },
+  "basePrice": 199.99
+}
+
+###
+
+### Get registrations for event
+GET {{baseUrl}}/registrations/event/1
+Authorization: Bearer {{token}}
+
+###
+
+### Get registration stats
+GET {{baseUrl}}/registrations/event/1/stats
+Authorization: Bearer {{token}}
+
+###
+
+### Confirm registration
+PATCH {{baseUrl}}/registrations/1/confirm
+Authorization: Bearer {{token}}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CHECK-IN
+# ─────────────────────────────────────────────────────────────────────────────
+
+### QR Check-in
+POST {{baseUrl}}/checkin/qr
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "qrPayload": "{\"eventId\":1,\"userId\":1,\"timestamp\":1234567890}",
+  "staffId": 2
+}
+
+###
+
+### Get attendance stats
+GET {{baseUrl}}/checkin/event/1/attendance
+Authorization: Bearer {{token}}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TASKS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Create task
+POST {{baseUrl}}/tasks
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "eventId": 1,
+  "title": "Book venue catering",
+  "description": "Contact the catering team for menu options",
+  "priority": "high",
+  "dueDate": "2025-08-01T00:00:00Z",
+  "assignedToId": 1
+}
+
+###
+
+### Get Kanban board
+GET {{baseUrl}}/tasks/event/1/kanban
+Authorization: Bearer {{token}}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ANALYTICS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Full analytics dashboard
+GET {{baseUrl}}/analytics/events/1/dashboard
+Authorization: Bearer {{token}}
+
+###
+
+### Registration timeline
+GET {{baseUrl}}/analytics/events/1/registrations/timeline
+Authorization: Bearer {{token}}
+
+###
+
+### Platform overview
+GET {{baseUrl}}/analytics/platform
+Authorization: Bearer {{token}}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SUPPORT TICKETS
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Create ticket
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": 1,
+  "eventId": 1,
+  "subject": "Cannot access my QR code",
+  "description": "I registered but haven't received my confirmation email with the QR code.",
+  "priority": "high",
+  "channel": "email"
+}
+
+###
+
+### List open tickets
+GET {{baseUrl}}/tickets?status=open
+Authorization: Bearer {{token}}
+
+###
+
+### Get ticket stats
+GET {{baseUrl}}/tickets/stats
+Authorization: Bearer {{token}}

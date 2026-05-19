@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "paths": {
+      "@event-platform/shared": ["../shared/src"]
+    }
+  },
+  "include": ["src/**/*"]
+}

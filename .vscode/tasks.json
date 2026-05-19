@@ -1,0 +1,85 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🐳 Start Infrastructure (DB + Redis)",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.infra.yml up -d",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🛑 Stop Infrastructure",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.infra.yml down",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔄 Reset Database",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.infra.yml down -v && docker compose -f docker-compose.infra.yml up -d",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "📦 Install All Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔨 Build All",
+      "type": "shell",
+      "command": "npm run build",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "🧪 Run All Tests",
+      "type": "shell",
+      "command": "npm run test",
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "🖥️ Start Frontend Only",
+      "type": "shell",
+      "command": "npm run dev:frontend",
+      "group": "build",
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": {
+        "pattern": { "regexp": "." },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "starting",
+          "endsPattern": "ready"
+        }
+      }
+    },
+    {
+      "label": "🔀 Start API Gateway Only",
+      "type": "shell",
+      "command": "npm run dev:gateway",
+      "group": "build",
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "📖 Open Swagger Docs",
+      "type": "shell",
+      "command": "open http://localhost:3000/api/docs || start http://localhost:3000/api/docs || xdg-open http://localhost:3000/api/docs",
+      "presentation": { "reveal": "never" },
+      "problemMatcher": []
+    }
+  ]
+}

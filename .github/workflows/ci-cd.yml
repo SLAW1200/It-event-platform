@@ -1,0 +1,125 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  # ─── Lint & Test ────────────────────────────────────────────────────────────
+  test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test -- --coverage --passWithNoTests
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage/
+
+  # ─── Build & Push to ECR ────────────────────────────────────────────────────
+  build:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        service:
+          - api-gateway
+          - user-service
+          - event-service
+          - registration-service
+          - email-service
+          - checkin-service
+          - notification-service
+          - analytics-service
+          - file-service
+          - task-service
+          - support-service
+          - networking-service
+          - frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          SERVICE:   ${{ matrix.service }}
+        run: |
+          docker build -t $ECR_REGISTRY/event-platform/$SERVICE:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/event-platform/$SERVICE:latest \
+                       ./apps/$SERVICE
+          docker push $ECR_REGISTRY/event-platform/$SERVICE:$IMAGE_TAG
+          docker push $ECR_REGISTRY/event-platform/$SERVICE:latest
+
+  # ─── Deploy to ECS ──────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Deploy all ECS services
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          SERVICES=(api-gateway user-service event-service registration-service \
+                    email-service checkin-service notification-service analytics-service \
+                    file-service task-service support-service networking-service)
+          for svc in "${SERVICES[@]}"; do
+            echo "Deploying $svc..."
+            aws ecs update-service \
+              --cluster event-platform-prod \
+              --service $svc \
+              --force-new-deployment \
+              --region ${{ env.AWS_REGION }}
+          done
+
+      - name: Wait for stable deployments
+        run: |
+          SERVICES=(api-gateway user-service event-service)
+          for svc in "${SERVICES[@]}"; do
+            aws ecs wait services-stable \
+              --cluster event-platform-prod \
+              --services $svc \
+              --region ${{ env.AWS_REGION }}
+          done
+          echo "✅ All services deployed successfully!"

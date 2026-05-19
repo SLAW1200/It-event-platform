@@ -1,0 +1,151 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🔀 API Gateway",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/api-gateway",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3000" }
+    },
+    {
+      "name": "👤 User Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/user-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3001" }
+    },
+    {
+      "name": "📅 Event Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/event-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3002" }
+    },
+    {
+      "name": "📋 Registration Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/registration-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3003" }
+    },
+    {
+      "name": "📧 Email Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/email-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3004" }
+    },
+    {
+      "name": "📱 Check-in Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/checkin-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3005" }
+    },
+    {
+      "name": "📊 Analytics Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/analytics-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3007" }
+    },
+    {
+      "name": "✅ Task Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/task-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3009" }
+    },
+    {
+      "name": "🎫 Support Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/support-service",
+      "console": "integratedTerminal",
+      "restart": true,
+      "env": { "PORT": "3010" }
+    },
+    {
+      "name": "🖥️ Frontend (Next.js)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/apps/frontend",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "ready on",
+        "uriFormat": "http://localhost:3100",
+        "action": "openExternally"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 All Backend Services",
+      "configurations": [
+        "🔀 API Gateway",
+        "👤 User Service",
+        "📅 Event Service",
+        "📋 Registration Service",
+        "📧 Email Service",
+        "📱 Check-in Service",
+        "📊 Analytics Service",
+        "✅ Task Service",
+        "🎫 Support Service"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "🌐 Full Stack",
+      "configurations": [
+        "🔀 API Gateway",
+        "👤 User Service",
+        "📅 Event Service",
+        "📋 Registration Service",
+        "📧 Email Service",
+        "📱 Check-in Service",
+        "📊 Analytics Service",
+        "✅ Task Service",
+        "🎫 Support Service",
+        "🖥️ Frontend (Next.js)"
+      ],
+      "stopAll": true
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "folders": [
+    { "name": "🏠 Root", "path": "." },
+    { "name": "🔀 API Gateway", "path": "apps/api-gateway" },
+    { "name": "👤 User Service", "path": "apps/user-service" },
+    { "name": "📅 Event Service", "path": "apps/event-service" },
+    { "name": "📋 Registration Service", "path": "apps/registration-service" },
+    { "name": "📧 Email Service", "path": "apps/email-service" },
+    { "name": "📱 Check-in Service", "path": "apps/checkin-service" },
+    { "name": "🔔 Notification Service", "path": "apps/notification-service" },
+    { "name": "📊 Analytics Service", "path": "apps/analytics-service" },
+    { "name": "📁 File Service", "path": "apps/file-service" },
+    { "name": "✅ Task Service", "path": "apps/task-service" },
+    { "name": "🎫 Support Service", "path": "apps/support-service" },
+    { "name": "🤝 Networking Service", "path": "apps/networking-service" },
+    { "name": "🖥️ Frontend", "path": "apps/frontend" },
+    { "name": "📦 Shared", "path": "packages/shared" },
+    { "name": "🗄️ Database", "path": "packages/database" }
+  ],
+  "settings": {
+    // Editor
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "editor.tabSize": 2,
+    "editor.rulers": [100],
+
+    // TypeScript
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.suggest.autoImports": true,
+
+    // Files
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.turbo": true,
+      "**/.next": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.next": true
+    },
+
+    // NestJS / Decorators
+    "javascript.implicitProjectConfig.experimentalDecorators": true,
+
+    // Tailwind
+    "tailwindCSS.experimental.classRegex": [
+      ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ],
+
+    // Terminal
+    "terminal.integrated.env.linux": { "NODE_ENV": "development" },
+    "terminal.integrated.env.osx": { "NODE_ENV": "development" },
+    "terminal.integrated.env.windows": { "NODE_ENV": "development" }
+  },
+  "extensions": {
+    "recommendations": [
+      // Core
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "ms-vscode.vscode-typescript-next",
+
+      // NestJS / Node
+      "christian-kohler.npm-intellisense",
+      "PKief.material-icon-theme",
+
+      // Frontend
+      "bradlc.vscode-tailwindcss",
+      "dsznajder.es7-react-js-snippets",
+      "formulahendry.auto-rename-tag",
+
+      // Database
+      "cweijan.vscode-postgresql-client2",
+
+      // Docker
+      "ms-azuretools.vscode-docker",
+      "ms-vscode-remote.remote-containers",
+
+      // Git
+      "eamodio.gitlens",
+      "mhutchie.git-graph",
+
+      // REST
+      "humao.rest-client",
+
+      // Utils
+      "streetsidesoftware.code-spell-checker",
+      "usernamehw.errorlens",
+      "oderwat.indent-rainbow"
+    ]
+  }
+}
