@@ -21,7 +21,7 @@
     "dev:support": "npm run dev --workspace=apps/support-service",
     "dev:networking": "npm run dev --workspace=apps/networking-service",
     "build": "turbo run build",
-    "test": "turbo run test",
+    "test": "turbo run test --",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "infra:up": "docker compose -f docker-compose.infra.yml up -d",
