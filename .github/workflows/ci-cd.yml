@@ -38,7 +38,10 @@ jobs:
     name: Build & Push Images
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
+    # Opt-in: only runs when you've provisioned AWS. Set a repo variable
+    # ENABLE_AWS_DEPLOY=true (Settings → Secrets and variables → Actions →
+    # Variables) and add the AWS_* secrets. Skipped (not failed) otherwise.
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_AWS_DEPLOY == 'true'
     strategy:
       matrix:
         service:
@@ -86,7 +89,7 @@ jobs:
     name: Deploy to ECS
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_AWS_DEPLOY == 'true'
     steps:
       - uses: actions/checkout@v4
 
