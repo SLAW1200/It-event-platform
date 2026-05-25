@@ -1,3 +1,6 @@
+// Root module for analytics-service. Reads from tables owned by other
+// services — there's no migration ownership here, just queries. forFeature
+// registers only the repositories actually injected.
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

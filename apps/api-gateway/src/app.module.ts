@@ -8,8 +8,12 @@ import { LoggingMiddleware } from './middleware/logging.middleware';
 
 @Module({
   imports: [
+    // Loads `.env` (service-local) and then `../../.env` (monorepo root) —
+    // local file wins on key collision.
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '../../.env'] }),
 
+    // Three tiers of rate limiting applied together: burst (20/sec),
+    // sustained (100/10s), session (500/min). Hitting any one returns 429.
     ThrottlerModule.forRoot([
       { name: 'short', ttl: 1000, limit: 20 },
       { name: 'medium', ttl: 10000, limit: 100 },
@@ -27,6 +31,8 @@ import { LoggingMiddleware } from './middleware/logging.middleware';
   ],
 })
 export class AppModule {
+  // Log every request that hits the gateway — handy for tracing requests
+  // across microservices via the X-Request-ID header.
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggingMiddleware)

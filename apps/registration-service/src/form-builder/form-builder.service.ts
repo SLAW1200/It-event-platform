@@ -1,4 +1,4 @@
-// form-builder.service.ts
+// CRUD for the per-event registration form fields (rendered in orderIndex order).
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,8 +8,6 @@ import {
 import { FormField } from '@event-platform/database';
 import { FormFieldType } from '@event-platform/shared';
 
-// Decorators required: the global ValidationPipe runs `whitelist: true`,
-// which strips any property without a validation decorator.
 export class CreateFormFieldDto {
   @IsNumber() eventId: number;
   @IsString() fieldName: string;
@@ -54,6 +52,9 @@ export class FormBuilderService {
     await this.repo.delete(id);
   }
 
+  // Rewrites orderIndex on every field in one pass. Issued as parallel
+  // updates rather than a single transaction because there are at most a
+  // few dozen fields per event and order doesn't matter mid-batch.
   async reorder(eventId: number, orderedIds: number[]): Promise<void> {
     await Promise.all(
       orderedIds.map((id, index) =>

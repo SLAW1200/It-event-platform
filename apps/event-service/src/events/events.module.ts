@@ -1,3 +1,6 @@
+// Events feature module — registers the Event repository, controller and
+// service. `exports` makes EventsService injectable by other modules if
+// they're added later (analytics, reporting, etc.).
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from '@event-platform/database';

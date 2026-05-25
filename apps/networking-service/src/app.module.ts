@@ -1,3 +1,6 @@
+// Root module for networking-service. Only reads/writes User profile data —
+// meeting state is kept in an in-memory array for now (see comment in the
+// service file).
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

@@ -1,8 +1,14 @@
+// File-upload service. Wraps S3 with three opinionated entry points
+// (cover/document/avatar) each enforcing its own MIME-type allow-list, plus
+// a generic uploadFile() for everything else. Keys are namespaced by folder
+// (`events/<id>/...`, `users/<id>/...`) so listing/deleting by prefix is easy.
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 
+// MIME allow-lists. Server-side enforcement — clients can lie about file
+// extensions, but `file.mimetype` is detected by multer from magic bytes.
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_DOC_TYPES = ['application/pdf', 'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -30,6 +36,8 @@ export class FilesService {
       throw new BadRequestException(`File too large. Max size is ${MAX_FILE_SIZE / 1024 / 1024}MB`);
     }
 
+    // Random UUID prevents collisions and frustrates URL-guessing. Keep the
+    // original extension so the CDN serves the right Content-Type.
     const ext = path.extname(file.originalname).toLowerCase();
     const key = `${folder}/${uuidv4()}${ext}`;
 
@@ -45,6 +53,8 @@ export class FilesService {
       },
     }).promise();
 
+    // Return both URLs so callers can choose: direct S3 for private flows
+    // (signed access), CDN-fronted for public assets like event covers.
     const s3Url = `https://${this.bucket}.s3.amazonaws.com/${key}`;
     const cdnFileUrl = this.cdnUrl ? `${this.cdnUrl}/${key}` : s3Url;
 
@@ -78,6 +88,8 @@ export class FilesService {
     this.logger.log(`File deleted: ${key}`);
   }
 
+  // Mints a short-lived signed GET URL for private objects (default 1h).
+  // Used when content must be auth-gated server-side before serving.
   async getSignedUrl(key: string, expiresIn = 3600): Promise<string> {
     return this.s3.getSignedUrlPromise('getObject', {
       Bucket: this.bucket,

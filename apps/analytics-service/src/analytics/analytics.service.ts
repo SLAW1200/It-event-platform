@@ -1,3 +1,5 @@
+// Read-only aggregate queries for the analytics dashboard — no writes or side
+// effects, so it can scale on its own or move behind a warehouse view later.
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +21,8 @@ export class AnalyticsService {
     private readonly eventRepo: Repository<Event>,
   ) {}
 
+  // Fan out the five sub-queries in parallel — they're independent and the
+  // dashboard wants a single combined response.
   async getEventDashboard(eventId: number) {
     const [
       totalRegistrations,
@@ -80,6 +84,8 @@ export class AnalyticsService {
     };
   }
 
+  // Postgres-only — DATE_TRUNC isn't portable. Bucketed by day for the
+  // signup-over-time chart; raw rows so the frontend can format dates.
   async getRegistrationTimeline(eventId: number) {
     return this.registrationRepo
       .createQueryBuilder('r')

@@ -1,3 +1,6 @@
+// Root module for task-service. Only `Task` is actively injected; the
+// other entities are listed so TypeORM keeps the full schema in sync when
+// running with synchronize: true in dev.
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

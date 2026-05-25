@@ -1,11 +1,8 @@
 import { IsEmail, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-/**
- * Lightweight identity for attendee self-registration on the public event
- * page. No password — a guest gets a PARTICIPANT account they can later
- * claim by registering normally with the same email.
- */
+// Passwordless identity for public self-registration. The PARTICIPANT account
+// can later be claimed by registering normally with the same email.
 export class GuestDto {
   @ApiProperty({ example: 'attendee@example.com' })
   @IsEmail()

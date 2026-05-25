@@ -1,4 +1,4 @@
-// ─── Common Types ─────────────────────────────────────────────────────────────
+// Shared DTO shapes and domain enums used by every service and the frontend.
 
 export interface PaginationQuery {
   page?: number;
@@ -23,6 +23,8 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+// Ordered most to least privileged. The values are compared in guards, so
+// renaming a member is a breaking change.
 export enum UserRole {
   SUPER_ADMIN = 'super_admin',
   ADMIN = 'admin',
@@ -31,6 +33,7 @@ export enum UserRole {
   PARTICIPANT = 'participant',
 }
 
+// Public landing pages only show PUBLISHED, ONGOING, or COMPLETED events.
 export enum EventStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
@@ -39,6 +42,8 @@ export enum EventStatus {
   CANCELLED = 'cancelled',
 }
 
+// CHECKED_IN is set on-site by checkin-service; WAITLISTED by the rules engine
+// when an event hits capacity.
 export enum RegistrationStatus {
   PENDING = 'pending',
   CONFIRMED = 'confirmed',
@@ -83,6 +88,7 @@ export enum EmailCampaignStatus {
   FAILED = 'failed',
 }
 
+// Field types the dynamic registration-form builder can render.
 export enum FormFieldType {
   TEXT = 'text',
   EMAIL = 'email',

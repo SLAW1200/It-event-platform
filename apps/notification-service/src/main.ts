@@ -1,3 +1,6 @@
+// Bootstrap for notification-service. Stateless — relays outbound
+// notifications (currently Slack; email/push are stubs) and keeps a small
+// in-memory ring buffer for the admin "recent activity" log.
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

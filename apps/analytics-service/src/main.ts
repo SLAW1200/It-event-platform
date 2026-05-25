@@ -1,3 +1,6 @@
+// Bootstrap for analytics-service. Read-only — runs aggregate queries
+// across events, registrations, check-ins, and email campaigns to power
+// the organiser dashboard's charts and KPIs.
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

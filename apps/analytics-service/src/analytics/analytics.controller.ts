@@ -1,3 +1,5 @@
+// HTTP routes for the analytics dashboard. All GETs, all idempotent — safe
+// to call as often as the frontend wants.
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';

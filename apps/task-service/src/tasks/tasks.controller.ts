@@ -1,3 +1,5 @@
+// HTTP routes for tasks. Organiser-only — every endpoint is auth-guarded
+// at the gateway.
 import {
   Controller, Get, Post, Put, Patch, Delete,
   Body, Param, Query, ParseIntPipe, HttpCode, HttpStatus,

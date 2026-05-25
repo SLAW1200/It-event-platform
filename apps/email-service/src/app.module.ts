@@ -1,3 +1,5 @@
+// Registers the full entity set (shared DB connection); only EmailCampaign is
+// actually injected here.
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

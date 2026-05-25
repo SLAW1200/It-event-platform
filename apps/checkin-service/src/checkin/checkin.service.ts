@@ -1,3 +1,6 @@
+// Processes QR scans + manual entries. Each scan writes a CheckIn row, flips
+// the registration to CHECKED_IN, and broadcasts over Socket.IO so the
+// organiser dashboard updates without polling.
 import {
   Injectable, NotFoundException, BadRequestException, Logger,
 } from '@nestjs/common';
@@ -40,11 +43,12 @@ export class CheckInService {
     if (registration.status === RegistrationStatus.CANCELLED) {
       throw new BadRequestException('Registration is cancelled');
     }
+    // Multi-session events allow repeat scans (one per session) — only block
+    // duplicates on single-session check-in (sessionId is undefined).
     if (registration.status === RegistrationStatus.CHECKED_IN && !sessionId) {
       throw new BadRequestException('Participant already checked in');
     }
 
-    // Create check-in record
     const checkIn = this.checkInRepo.create({
       registrationId: registration.id,
       staffId,
@@ -53,11 +57,9 @@ export class CheckInService {
     });
     const saved = await this.checkInRepo.save(checkIn);
 
-    // Update registration status
     registration.status = RegistrationStatus.CHECKED_IN;
     await this.registrationRepo.save(registration);
 
-    // Emit real-time update via WebSocket
     this.gateway.emitCheckIn(registration.eventId, {
       checkInId: saved.id,
       registrationId: registration.id,

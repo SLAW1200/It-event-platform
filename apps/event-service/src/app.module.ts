@@ -1,3 +1,5 @@
+// Root module for event-service. Loads only the entities this service reads
+// (Event + User for the organiser relation) — other services own the rest.
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

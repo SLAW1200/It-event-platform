@@ -1,3 +1,5 @@
+// Barrel for @eventra/database. Every service imports its entity classes from
+// here; the package owns the TypeORM schema for the whole platform.
 export * from './entities/user.entity';
 export * from './entities/event.entity';
 export * from './entities/registration.entity';

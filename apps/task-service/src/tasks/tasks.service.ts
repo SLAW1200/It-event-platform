@@ -1,4 +1,4 @@
-// ─── tasks.service.ts ─────────────────────────────────────────────────────────
+// CRUD for organiser todos plus the Kanban + stats views.
 import {
   Injectable, NotFoundException, Logger,
 } from '@nestjs/common';
@@ -10,8 +10,6 @@ import {
 import { Task } from '@event-platform/database';
 import { TaskStatus, TaskPriority } from '@event-platform/shared';
 
-// Decorators are required: the global ValidationPipe runs `whitelist: true`,
-// which strips any property without a validation decorator.
 export class CreateTaskDto {
   @IsNumber() eventId: number;
   @IsString() title: string;
@@ -95,6 +93,8 @@ export class TasksService {
     await this.taskRepo.remove(task);
   }
 
+  // One query, four buckets — cheaper than four separate WHERE-filtered
+  // queries and order is preserved across columns for the drag-and-drop UI.
   async getKanban(eventId: number): Promise<Record<TaskStatus, Task[]>> {
     const tasks = await this.findByEvent(eventId);
     return {
@@ -117,6 +117,8 @@ export class TasksService {
         acc[p] = tasks.filter((t) => t.priority === p).length;
         return acc;
       }, {} as Record<string, number>),
+      // Overdue = past due AND not yet DONE. Completed-late tasks are
+      // intentionally not flagged so the dashboard doesn't nag for closed work.
       overdue: tasks.filter(
         (t) => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== TaskStatus.DONE,
       ).length,

@@ -1,3 +1,6 @@
+// HTTP routes for events. Most require auth (gateway-enforced); GET
+// `/events/:id/public` is the one unauthenticated path, used by the
+// attendee-facing landing page.
 import {
   Controller, Get, Post, Put, Patch, Delete,
   Body, Param, Query, ParseIntPipe, HttpCode, HttpStatus,

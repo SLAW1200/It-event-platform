@@ -1,3 +1,6 @@
+// Bootstrap for support-service. Owns the `support_tickets` table and
+// runs the SLA timer logic; pages an on-call channel via Slack on new/
+// escalated tickets.
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

@@ -1,3 +1,5 @@
+// Register / login / refresh / guest creation. Issues an access + refresh
+// token; the gateway's JwtAuthGuard validates the access token everywhere else.
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { randomBytes } from 'crypto';
@@ -25,6 +27,8 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
+    // Same generic error for unknown email / inactive / wrong password —
+    // don't leak which one the user got wrong (account enumeration).
     const user = await this.usersService.findByEmailWithPassword(dto.email);
     if (!user || !user.active || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
@@ -32,6 +36,7 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
+    // Strip the hash before returning the user to the client.
     delete (user as Partial<typeof user>).passwordHash;
     const tokens = await this.generateTokens(user.id, user.email, user.role);
     return { user, ...tokens };

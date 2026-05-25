@@ -43,9 +43,12 @@ export class Event {
   @Column({ nullable: true })
   customDomain: string;
 
+  // Key into the canned landing-page templates (see frontend lib/templates.ts).
   @Column({ nullable: true })
   templateId: string;
 
+  // null = unlimited. The rules engine compares confirmed registrations
+  // against this value when deciding whether to waitlist.
   @Column({ type: 'int', nullable: true })
   maxParticipants: number;
 
@@ -55,6 +58,7 @@ export class Event {
   @Column({ nullable: true })
   currency: string;
 
+  // Until this date, `earlyBirdPrice` overrides `basePrice` at checkout.
   @Column({ nullable: true })
   earlyBirdDeadline: Date;
 
@@ -68,9 +72,11 @@ export class Event {
   })
   status: EventStatus;
 
+  // Theme, hero copy overrides, custom CSS — read by the public page renderer.
   @Column({ type: 'jsonb', default: {} })
   configuration: Record<string, any>;
 
+  // OpenGraph / Twitter card overrides for the public event page.
   @Column({ type: 'jsonb', default: {} })
   seoMeta: Record<string, any>;
 

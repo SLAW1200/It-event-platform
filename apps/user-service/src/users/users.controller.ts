@@ -1,3 +1,5 @@
+// CRUD routes for users. Reachable only through the gateway, which has
+// already verified the bearer token before forwarding.
 import {
   Controller, Get, Post, Put, Patch, Delete,
   Body, Param, Query, ParseIntPipe, HttpCode, HttpStatus,

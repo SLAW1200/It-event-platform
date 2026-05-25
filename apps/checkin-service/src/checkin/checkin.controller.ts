@@ -1,3 +1,5 @@
+// HTTP routes for check-in (QR + manual) plus attendance read endpoints.
+// The companion CheckInGateway is what powers the live dashboard updates.
 import { Controller, Post, Get, Body, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { IsString, IsNumber, IsOptional } from 'class-validator';

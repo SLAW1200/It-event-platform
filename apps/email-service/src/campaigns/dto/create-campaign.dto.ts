@@ -1,4 +1,3 @@
-// ─── dto/create-campaign.dto.ts ───────────────────────────────────────────────
 import { IsString, IsNumber, IsOptional, IsDateString, IsArray } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -12,7 +11,6 @@ export class CreateCampaignDto {
   @ApiPropertyOptional() @IsOptional() @IsString() emailProvider?: string;
 }
 
-// ─── dto/send-campaign.dto.ts ─────────────────────────────────────────────────
 export class RecipientDto {
   @IsString() email: string;
   @IsOptional() @IsString() name?: string;

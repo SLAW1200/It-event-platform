@@ -1,3 +1,5 @@
+// One row per question on an event's registration form, rendered in
+// orderIndex order according to fieldType.
 import {
   Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn,
 } from 'typeorm';
@@ -31,18 +33,25 @@ export class FormField {
   @Column({ type: 'enum', enum: FormFieldType })
   fieldType: FormFieldType;
 
+  // Only meaningful for SELECT/MULTISELECT/RADIO. Ignored otherwise.
   @Column({ type: 'jsonb', nullable: true })
   options: string[];
 
+  // e.g. { minLength: 3, pattern: '^.+@.+$' }. Mirrored on the client; the
+  // server re-checks on submit so a tampered client can't bypass it.
   @Column({ type: 'jsonb', default: {} })
   validationRules: Record<string, any>;
 
+  // "Show this field when field X has value Y" rules — evaluated client-side
+  // to hide/show inputs as the user fills the form.
   @Column({ type: 'jsonb', default: {} })
   conditionalLogic: Record<string, any>;
 
   @Column({ default: false })
   required: boolean;
 
+  // Render order. Authoring UI lets users drag-reorder; persisted as ints
+  // (10, 20, 30…) so insertions don't force a re-numbering of every row.
   @Column({ type: 'int', default: 0 })
   orderIndex: number;
 

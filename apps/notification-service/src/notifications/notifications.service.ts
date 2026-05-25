@@ -1,4 +1,6 @@
-// notifications.service.ts
+// Notifications fan-out. Currently only Slack is wired up; `email` and
+// `push` are accepted in the DTO but treated as log-only no-ops so callers
+// can be future-proofed without us having to add stubs everywhere.
 import { Injectable, Logger } from '@nestjs/common';
 import { WebClient } from '@slack/web-api';
 
@@ -46,6 +48,8 @@ export class NotificationsService {
     return { sent: notifications.length };
   }
 
+  // Last 50 notifications, newest at the end. In-memory only — restart
+  // wipes it. Good enough for the admin dashboard's recent-activity tile.
   getLog() {
     return this.log.slice(-50);
   }

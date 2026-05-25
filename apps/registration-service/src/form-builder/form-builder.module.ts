@@ -1,3 +1,5 @@
+// Form-builder feature module — registers the FormField repository and
+// re-exports the service so RegistrationModule can read fields during signup.
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FormField } from '@event-platform/database';

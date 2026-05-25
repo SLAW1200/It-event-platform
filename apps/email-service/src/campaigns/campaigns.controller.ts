@@ -1,3 +1,6 @@
+// HTTP routes for managing bulk email campaigns. track-open / track-click
+// are intentionally idempotent and return 204 — the email client just fires
+// the pixel/link without caring about the response.
 import {
   Controller, Get, Post, Put, Patch, Delete,
   Body, Param, ParseIntPipe, HttpCode, HttpStatus,

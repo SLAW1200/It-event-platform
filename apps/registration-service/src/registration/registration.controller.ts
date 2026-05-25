@@ -1,3 +1,7 @@
+// HTTP routes for registrations. POST /public is the only unauthenticated
+// path — used by the attendee-facing event page. POST /webhook/stripe takes
+// a RawBodyRequest because Stripe signature verification requires the
+// untouched JSON bytes.
 import {
   Controller, Get, Post, Patch, Body,
   Param, ParseIntPipe, Query, RawBodyRequest, Req, Headers,

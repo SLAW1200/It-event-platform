@@ -1,3 +1,6 @@
+// Root module for checkin-service. Registers HTTP routes and the
+// Socket.IO gateway in one process — they share the same DB connection
+// so a scan write is immediately reflected by the broadcast emit.
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

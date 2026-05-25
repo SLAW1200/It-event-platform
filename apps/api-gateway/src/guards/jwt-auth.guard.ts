@@ -1,3 +1,5 @@
+// JWT guard plus the @Public() / @Roles() decorators it reads. Verifies the
+// bearer token, attaches the payload as req.user, and enforces roles if declared.
 import {
   CanActivate, ExecutionContext, Injectable,
   UnauthorizedException, SetMetadata,
@@ -6,9 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
+// Metadata key for `@Public()` — read by the reflector below to bypass auth.
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
+// Metadata key for `@Roles('admin', ...)` — enforced after token verification.
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
 
@@ -20,6 +24,7 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // `@Public()` short-circuits — useful for healthchecks, webhooks, etc.
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -32,12 +37,14 @@ export class JwtAuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('No token provided');
 
     try {
+      // Throws on expired/forged tokens — handled by the catch below.
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
       request['user'] = payload;
 
-      // Role check
+      // Role check — only runs if the handler/class declared @Roles().
+      // Currently a flat allow-list; replace with hierarchy if needed.
       const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
         context.getHandler(),
         context.getClass(),
@@ -48,6 +55,8 @@ export class JwtAuthGuard implements CanActivate {
 
       return true;
     } catch {
+      // Deliberately opaque error — don't leak whether the token was expired
+      // vs forged vs signed with the wrong secret.
       throw new UnauthorizedException('Invalid or expired token');
     }
   }

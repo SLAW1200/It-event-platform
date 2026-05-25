@@ -1,3 +1,5 @@
+// eventId is nullable: some tickets are platform-level (account help) rather
+// than tied to a specific event.
 import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
   UpdateDateColumn, ManyToOne, JoinColumn,
@@ -47,6 +49,8 @@ export class SupportTicket {
   @Column({ nullable: true })
   channel: string; // email, chat, phone
 
+  // Conversation thread. `isInternal: true` messages are agent-only notes
+  // and must be filtered out before showing the ticket to the customer.
   @Column({ type: 'jsonb', default: [] })
   messages: Array<{
     senderId: number;
@@ -55,6 +59,8 @@ export class SupportTicket {
     createdAt: Date;
   }>;
 
+  // Timestamps powering SLA dashboards. `firstResponseAt` is set on the first
+  // outbound agent message; `slaDueAt` is computed from priority on create.
   @Column({ nullable: true })
   resolvedAt: Date;
 

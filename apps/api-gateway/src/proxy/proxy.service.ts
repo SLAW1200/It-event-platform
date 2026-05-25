@@ -1,7 +1,10 @@
+// Relays gateway requests to the right service, streaming the response back
+// unchanged so clients see the original status/headers/body.
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { Request, Response } from 'express';
 
+// Service name → base URL, defaulting to the dev localhost ports.
 const SERVICE_MAP: Record<string, string> = {
   'user-service':        process.env.USER_SERVICE_URL        || 'http://localhost:3001',
   'event-service':       process.env.EVENT_SERVICE_URL       || 'http://localhost:3002',
@@ -22,6 +25,12 @@ export class ProxyService {
 
   constructor(private readonly http: HttpService) {}
 
+  /**
+   * Forward an incoming request to a downstream service.
+   *
+   * @param overridePath Set when the public-facing URL differs from the
+   *   downstream URL (e.g. `/public/events/:id` → `/events/:id/public`).
+   */
   async forward(
     req: Request,
     res: Response,
@@ -30,6 +39,7 @@ export class ProxyService {
   ): Promise<void> {
     const baseUrl = SERVICE_MAP[serviceName];
     if (!baseUrl) {
+      // Misconfiguration, not a client error — return 502 (Bad Gateway).
       res.status(502).json({ error: `Unknown service: ${serviceName}` });
       return;
     }
@@ -39,6 +49,9 @@ export class ProxyService {
     this.logger.debug(`${req.method} ${req.path} → ${targetUrl}`);
 
     try {
+      // `responseType: 'stream'` lets large payloads pass through without
+      // buffering. `validateStatus: () => true` stops axios throwing on 4xx/5xx
+      // — we want to relay every downstream status verbatim.
       const response = await this.http.axiosRef.request({
         method: req.method as any,
         url: targetUrl,
@@ -49,6 +62,8 @@ export class ProxyService {
       });
 
       res.status(response.status);
+      // Strip hop-by-hop headers — Express manages framing itself; copying
+      // these from upstream confuses the response (chunked-vs-content-length).
       Object.entries(response.headers).forEach(([k, v]) => {
         if (!['transfer-encoding', 'connection'].includes(k.toLowerCase())) {
           res.setHeader(k, v as string);
@@ -56,6 +71,8 @@ export class ProxyService {
       });
       response.data.pipe(res);
     } catch (err: any) {
+      // Network-level failure (DNS, ECONNREFUSED, timeout). Map to 502 so the
+      // client knows the gateway is up but the dependency isn't.
       this.logger.error(`Proxy error → ${serviceName}: ${err.message}`);
       res.status(502).json({ error: 'Service temporarily unavailable', service: serviceName });
     }
@@ -66,6 +83,9 @@ export class ProxyService {
     return params ? `?${params}` : '';
   }
 
+  // Selectively forward only the headers downstream needs: the bearer token
+  // for re-validation/RBAC, and the trace ID for cross-service correlation.
+  // Anything else (cookies, host, hop-by-hop) is dropped on purpose.
   private forwardHeaders(req: Request): Record<string, string> {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (req.headers.authorization) {

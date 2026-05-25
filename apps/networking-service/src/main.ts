@@ -1,3 +1,6 @@
+// Bootstrap for networking-service. Powers the attendee-to-attendee
+// features: participant directory, profile editing, interest-based match
+// suggestions, and 1-on-1 meeting scheduling.
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

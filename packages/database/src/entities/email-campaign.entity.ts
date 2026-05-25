@@ -1,3 +1,5 @@
+// One row per bulk email job. Scheduled rows are picked up once their
+// scheduledTime passes and flipped to SENDING.
 import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
   ManyToOne, JoinColumn, OneToMany,
@@ -23,9 +25,12 @@ export class EmailCampaign {
   @Column()
   subject: string;
 
+  // Plaintext fallback (kept in sync with htmlContent).
   @Column({ type: 'text' })
   content: string;
 
+  // Rendered HTML body. May contain {{merge}} tokens that the sender
+  // substitutes per-recipient.
   @Column({ nullable: true, type: 'text' })
   htmlContent: string;
 
@@ -38,9 +43,13 @@ export class EmailCampaign {
   @Column({ nullable: true })
   sentAt: Date;
 
+  // Audience filter expressed as a rule tree (e.g. status=CONFIRMED AND
+  // registeredAt > X). Evaluated when the campaign starts sending.
   @Column({ type: 'jsonb', nullable: true })
   segmentRules: Record<string, any>;
 
+  // Engagement counters — incremented by webhooks from the email provider
+  // (open pixel, link rewrites, bounce/delivery callbacks).
   @Column({ default: 0 })
   totalSent: number;
 
@@ -53,6 +62,8 @@ export class EmailCampaign {
   @Column({ default: 0 })
   totalBounced: number;
 
+  // 'ses', 'sendgrid', 'smtp' — recorded so analytics can compare deliverability
+  // across providers.
   @Column({ nullable: true })
   emailProvider: string;
 

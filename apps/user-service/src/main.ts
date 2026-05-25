@@ -1,3 +1,5 @@
+// Bootstrap for user-service. Owns auth (login/register/JWT issuance) and
+// the `users` table. The api-gateway proxies `/auth/*` and `/users/*` here.
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

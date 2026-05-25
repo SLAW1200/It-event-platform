@@ -1,3 +1,6 @@
+// Root module — wires the three feature modules: form-builder (CRUD for
+// dynamic form fields), rules-engine (pure evaluator, no DB), and
+// registration (signup, payment, confirmation).
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';

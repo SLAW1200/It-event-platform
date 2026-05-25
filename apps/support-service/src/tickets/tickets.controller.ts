@@ -1,3 +1,5 @@
+// HTTP routes for support tickets. Customer-facing POST/GET, plus the
+// agent-side patch endpoints (assign, resolve, close, escalate).
 import {
   Controller, Get, Post, Patch, Body,
   Param, ParseIntPipe, Query,

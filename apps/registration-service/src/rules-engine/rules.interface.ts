@@ -1,3 +1,8 @@
+// Type definitions for the rules engine — a small DSL that lets organisers
+// describe form behaviour without redeploying. A Rule has conditions (when
+// to fire), conditionLogic (AND/OR across them), and actions (what to do).
+// Stored as JSON on FormField.conditionalLogic; evaluated at signup time.
+
 export type RuleOperator =
   | 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte'
   | 'contains' | 'not_contains' | 'in' | 'not_in'

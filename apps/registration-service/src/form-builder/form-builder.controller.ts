@@ -1,3 +1,6 @@
+// HTTP routes for the form builder. Mounted at `/form-fields`; the gateway
+// guards all of these with JwtAuthGuard since only organisers should edit
+// forms.
 import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { FormBuilderService, CreateFormFieldDto } from './form-builder.service';

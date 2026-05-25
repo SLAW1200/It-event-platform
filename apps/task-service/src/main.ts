@@ -1,3 +1,6 @@
+// Bootstrap for task-service. Owns the `tasks` table — organiser-side
+// todo board for each event (catering, AV, signage…). Powers the Kanban
+// view on the dashboard.
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

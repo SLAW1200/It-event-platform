@@ -1,3 +1,6 @@
+// Directory, profile editing, match suggestions, and lightweight meeting
+// scheduling. Profiles live in User.profileData (jsonb) — there's no separate
+// table yet — so updates merge into that blob rather than replacing it.
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike, Not } from 'typeorm';
@@ -20,7 +23,9 @@ export class ScheduleMeetingDto {
   notes?: string;
 }
 
-// In-memory meeting store (use DB entity in production)
+// In-memory meeting store — single-process only. Restarting the service
+// wipes scheduled meetings. Promote to a real entity (Meeting/{id,
+// requesterId, recipientId, eventId, ...}) before going to production.
 const meetingStore: any[] = [];
 
 @Injectable()
@@ -31,8 +36,6 @@ export class NetworkingService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
   ) {}
-
-  // ─── Participant Directory ────────────────────────────────────────────────────
 
   async searchParticipants(
     eventId: number,
@@ -63,13 +66,13 @@ export class NetworkingService {
     return this.userRepo.save(user);
   }
 
-  // ─── AI Match Suggestions ─────────────────────────────────────────────────────
-
   async getMatchSuggestions(userId: number, eventId: number): Promise<User[]> {
     const user = await this.getProfile(userId);
     const userInterests = user.profileData?.interests || [];
 
-    // Basic matching: same industry or interests — replace with ML model in prod
+    // Rough first pass: any active user with a company, up to 10 candidates.
+    // The real ranking happens in the scoring step below — replace this
+    // whole function with an embedding-based recommender when it's worth it.
     const candidates = await this.userRepo
       .createQueryBuilder('u')
       .where('u.id != :userId', { userId })
@@ -78,7 +81,8 @@ export class NetworkingService {
       .take(10)
       .getMany();
 
-    // Score by shared interests
+    // Score = number of shared interest tags. Ties keep query order. Users
+    // with zero shared interests still surface (better than empty results).
     const scored = candidates.map((c) => {
       const theirInterests = c.profileData?.interests || [];
       const shared = userInterests.filter((i: string) => theirInterests.includes(i)).length;
@@ -89,8 +93,6 @@ export class NetworkingService {
       .sort((a, b) => b.score - a.score)
       .map((s) => s.user);
   }
-
-  // ─── Meeting Scheduler ────────────────────────────────────────────────────────
 
   async scheduleMeeting(dto: ScheduleMeetingDto) {
     const meeting = {

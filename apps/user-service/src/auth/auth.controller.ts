@@ -1,3 +1,5 @@
+// HTTP routes for auth. All four are POSTs and all are unauthenticated —
+// the gateway exempts `/auth/*` from JwtAuthGuard.
 import { Controller, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';

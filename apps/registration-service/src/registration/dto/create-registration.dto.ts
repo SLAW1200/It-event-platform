@@ -1,4 +1,7 @@
-// ─── dto/create-registration.dto.ts ──────────────────────────────────────────
+// Payload for creating a registration.
+// `formData` is the attendee's answers; `userData`/`eventData` are extra
+// context passed to the rules engine (so rules can reference user.company,
+// event.country, etc); `basePrice` is the starting price the engine adjusts.
 import { IsNumber, IsOptional, IsObject } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 

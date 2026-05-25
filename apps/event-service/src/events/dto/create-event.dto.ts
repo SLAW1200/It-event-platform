@@ -1,3 +1,6 @@
+// Payload for POST /events. `startDate`/`endDate` arrive as ISO strings
+// (IsDateString) — TypeORM converts them to Date on save. The cross-field
+// "end > start" check lives in EventsService.create.
 import {
   IsString, IsOptional, IsDateString, IsNumber, IsEnum,
   IsPositive, Min, IsUrl, IsObject,

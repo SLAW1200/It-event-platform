@@ -1,3 +1,6 @@
+// HTTP routes for the file-service. Each upload endpoint uses Multer's
+// memoryStorage so the buffer streams straight into S3 — nothing touches
+// the local disk.
 import {
   Controller, Post, Delete, Get,
   Param, ParseIntPipe, UploadedFile, UseInterceptors, Query,
@@ -7,6 +10,8 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagg
 import { memoryStorage } from 'multer';
 import { FilesService } from './files.service';
 
+// Buffer uploads in RAM; S3 upload happens before the handler returns, so
+// peak memory is bounded by MAX_FILE_SIZE per concurrent upload.
 const multerOpts = { storage: memoryStorage() };
 
 @ApiTags('Files')

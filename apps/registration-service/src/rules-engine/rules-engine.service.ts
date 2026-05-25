@@ -1,3 +1,5 @@
+// Pure rules engine — no DB or I/O. Given rules + a context it decides field
+// visibility, which fields are required, and the final price. Unit-testable.
 import { Injectable, Logger } from '@nestjs/common';
 import {
   Rule, RuleCondition, RuleOperator, RuleEvaluationContext,
@@ -8,10 +10,7 @@ import {
 export class RulesEngineService {
   private readonly logger = new Logger(RulesEngineService.name);
 
-  /**
-   * Evaluate a list of rules against a context and return results.
-   * Rules are sorted by priority (highest first).
-   */
+  // Highest priority first, so later rules can override earlier ones.
   evaluateRules(
     rules: Rule[],
     context: RuleEvaluationContext,
@@ -22,10 +21,6 @@ export class RulesEngineService {
       .map((rule) => this.evaluateRule(rule, context));
   }
 
-  /**
-   * Full form evaluation: validates, resolves field visibility,
-   * calculates pricing, and returns a complete result.
-   */
   evaluateForm(
     rules: Rule[],
     context: RuleEvaluationContext,
@@ -42,6 +37,9 @@ export class RulesEngineService {
     let finalPrice = basePrice;
     const updatedFormData = { ...context.formData };
 
+    // Apply each matched rule's actions in priority order (rules are already
+    // sorted highest-first). Later show/hide actions override earlier ones on
+    // the same field — that's why the opposite set is cleared, not just added.
     for (const result of matched) {
       for (const action of result.actionsApplied) {
         switch (action.action) {
@@ -70,7 +68,6 @@ export class RulesEngineService {
       }
     }
 
-    // Validate required fields
     for (const field of requiredFields) {
       if (!updatedFormData[field]) {
         errors[field] = `${field} is required`;
@@ -89,8 +86,6 @@ export class RulesEngineService {
       updatedFormData,
     };
   }
-
-  // ─── Private Helpers ────────────────────────────────────────────────────────
 
   private evaluateRule(rule: Rule, ctx: RuleEvaluationContext): RuleEvaluationResult {
     const conditionResults = rule.conditions.map((c) => this.evaluateCondition(c, ctx));
@@ -115,6 +110,8 @@ export class RulesEngineService {
     const fieldValue = this.resolveField(condition.field, ctx);
     const { operator, value } = condition;
 
+    // Intentional loose equality (== / !=) so rules authored as numbers in
+    // the UI still match values stored as strings in formData JSONB.
     switch (operator as RuleOperator) {
       case 'eq':           return fieldValue == value;
       case 'neq':          return fieldValue != value;
@@ -132,10 +129,7 @@ export class RulesEngineService {
     }
   }
 
-  /**
-   * Resolve a dot-notation field path against the context.
-   * e.g. "user.company_type" → ctx.user.company_type
-   */
+  // Dot-notation lookup: "user.company_type" → ctx.user.company_type
   private resolveField(field: string, ctx: RuleEvaluationContext): any {
     const parts = field.split('.');
     let current: any = ctx;

@@ -18,6 +18,8 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DATABASE_USER || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'postgres',
       entities: [User],
+      // Auto-sync is gated by env so prod can never accidentally migrate the
+      // schema by booting a fresh service. Use migrations there.
       synchronize: process.env.DB_SYNC === 'true' && process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),

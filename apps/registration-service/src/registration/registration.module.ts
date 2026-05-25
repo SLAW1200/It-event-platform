@@ -1,3 +1,6 @@
+// Registration feature module. Imports the rules engine (used during signup
+// to compute pricing/visibility) and the three TypeORM repositories the
+// service touches.
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Registration, FormField, Event } from '@event-platform/database';

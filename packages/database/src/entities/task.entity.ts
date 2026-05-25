@@ -1,3 +1,4 @@
+// Organiser-side todo items scoped to an event, shown as a kanban board.
 import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
   UpdateDateColumn, ManyToOne, JoinColumn,
@@ -46,9 +47,13 @@ export class Task {
   @Column({ nullable: true })
   actualHours: number;
 
+  // S3 URLs of files uploaded via the file-service.
   @Column({ type: 'jsonb', default: [] })
   attachments: string[];
 
+  // Inline comment thread on the task. Stored denormalised here rather than
+  // in a separate table because comment volume is low and reads are always
+  // alongside the parent task.
   @Column({ type: 'jsonb', default: [] })
   comments: Array<{ userId: number; text: string; createdAt: Date }>;
 

@@ -1,3 +1,5 @@
+// HTTP routes for sending notifications. Both POSTs are server-to-server;
+// the GET /log endpoint backs the admin "recent activity" view.
 import { Controller, Post, Get, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { NotificationsService, SendNotificationDto } from './notifications.service';

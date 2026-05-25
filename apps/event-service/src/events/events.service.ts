@@ -1,3 +1,5 @@
+// Event CRUD plus the lifecycle transitions (publish/cancel) and the public
+// read paths. State changes funnel through here to keep EventStatus consistent.
 import {
   Injectable, NotFoundException, BadRequestException, Logger,
 } from '@nestjs/common';
@@ -18,6 +20,8 @@ export class EventsService {
   ) {}
 
   async create(dto: CreateEventDto, organizerId: number): Promise<Event> {
+    // Strict inequality — a zero-length event isn't useful and breaks
+    // downstream date-range queries.
     if (new Date(dto.endDate) <= new Date(dto.startDate)) {
       throw new BadRequestException('End date must be after start date');
     }
@@ -39,12 +43,15 @@ export class EventsService {
       .take(limit)
       .orderBy(`event.${sortBy}`, sortOrder);
 
+    // Free-text search over name/description/city. ILIKE = case-insensitive.
     if (search) {
       qb.andWhere('(event.name ILIKE :s OR event.description ILIKE :s OR event.city ILIKE :s)', {
         s: `%${search}%`,
       });
     }
     if (status) qb.andWhere('event.status = :status', { status });
+    // `upcoming=true` filters out anything whose startDate has already passed
+    // — what the public landing page uses to hide finished events.
     if (upcoming) qb.andWhere('event.startDate >= :now', { now: new Date() });
 
     const [data, total] = await qb.getManyAndCount();
@@ -92,6 +99,9 @@ export class EventsService {
     return this.eventRepo.save(event);
   }
 
+  // Lifecycle transitions are one-way and guarded so the EventStatus state
+  // machine stays sane: DRAFT → PUBLISHED → ONGOING → COMPLETED, with
+  // CANCELLED reachable from anything except COMPLETED.
   async publish(id: number): Promise<Event> {
     const event = await this.findOne(id);
     if (event.status !== EventStatus.DRAFT) {
@@ -110,6 +120,8 @@ export class EventsService {
     return this.eventRepo.save(event);
   }
 
+  // Hard delete is reserved for drafts/cancelled events — once an event is
+  // live, attendees/registrations exist and deletion would orphan them.
   async remove(id: number): Promise<void> {
     const event = await this.findOne(id);
     if (event.status === EventStatus.PUBLISHED || event.status === EventStatus.ONGOING) {
@@ -118,6 +130,9 @@ export class EventsService {
     await this.eventRepo.remove(event);
   }
 
+  // Lightweight summary shown on the dashboard tile. Heavier metrics
+  // (registrations, revenue, check-ins) come from analytics-service.
+  // 86_400_000 ms = 1 day; ceil so today shows as 0 days, tomorrow as 1.
   async getStats(id: number): Promise<Record<string, any>> {
     const event = await this.findOne(id);
     return {

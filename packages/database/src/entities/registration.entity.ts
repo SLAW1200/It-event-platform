@@ -25,6 +25,8 @@ export class Registration {
   @JoinColumn({ name: 'userId' })
   user: User;
 
+  // Answers to the per-event form, keyed by FormField. Dynamic schema —
+  // validate against this event's FormField rows before trusting it.
   @Column({ type: 'jsonb', default: {} })
   formData: Record<string, any>;
 
@@ -38,9 +40,13 @@ export class Registration {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   amountPaid: number;
 
+  // Set once a Stripe PaymentIntent is created; used to reconcile webhook
+  // callbacks back to the registration.
   @Column({ nullable: true })
   stripePaymentIntentId: string;
 
+  // QR-code payload (opaque token) and the public URL to its rendered PNG.
+  // Scanned at the door by the check-in service.
   @Column({ nullable: true })
   qrCode: string;
 

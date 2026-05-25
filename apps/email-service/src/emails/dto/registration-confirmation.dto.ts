@@ -1,6 +1,7 @@
-import { IsEmail, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsObject, IsOptional, IsString, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+/** Event details rendered into every transactional email. */
 export interface ConfirmationEventInfo {
   name: string;
   startDate?: string;
@@ -11,11 +12,64 @@ export interface ConfirmationEventInfo {
   description?: string;
 }
 
-/**
- * Payload for the post-registration confirmation email. Sent server-to-server
- * by registration-service after a participant joins a published event.
- */
-export class RegistrationConfirmationDto {
+// Acknowledgement for a paid signup that's still awaiting payment. No QR here —
+// that goes out with the confirmation once the spot is secured.
+export class RegistrationEmailDto {
+  @ApiProperty({ example: 'attendee@example.com' })
+  @IsEmail()
+  to: string;
+
+  @ApiProperty({ example: 'Maya Rao' })
+  @IsString()
+  name: string;
+
+  @ApiPropertyOptional({ description: 'Amount still owed before the spot is confirmed' })
+  @IsOptional()
+  @IsNumber()
+  amountDue?: number;
+
+  @ApiPropertyOptional({ example: 'usd' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiProperty({ description: 'Event details rendered into the email' })
+  @IsObject()
+  event: ConfirmationEventInfo;
+}
+
+// Receipt sent once Stripe confirms the charge.
+export class PaymentEmailDto {
+  @ApiProperty({ example: 'attendee@example.com' })
+  @IsEmail()
+  to: string;
+
+  @ApiProperty({ example: 'Maya Rao' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ example: 149.0, description: 'Amount charged' })
+  @IsNumber()
+  amountPaid: number;
+
+  @ApiPropertyOptional({ example: 'usd' })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 'early-bird' })
+  @IsOptional()
+  @IsString()
+  pricingTier?: string;
+
+  @ApiProperty({ description: 'Event details rendered into the email' })
+  @IsObject()
+  event: ConfirmationEventInfo;
+}
+
+// The ticket: carries the check-in QR. Sent immediately for free events, or
+// after payment clears for paid ones.
+export class ConfirmationEmailDto {
   @ApiProperty({ example: 'attendee@example.com' })
   @IsEmail()
   to: string;

@@ -55,14 +55,13 @@ cp .env.example .env   # only if you don't have .env
 # 3. Infrastructure: Postgres + Redis
 npm run infra:up
 
-# 4. Backend: API gateway + microservices (TypeORM auto-syncs schema in dev)
-npm run dev:backend -- --concurrency=15
-
-# 5. Frontend: the Eventra app (separate install — not an npm workspace)
-cd apps/frontend/it-event-platfome
-npm install
-npm run dev -- -p 3100
+# 4. Everything — backends + Eventra frontend in one command
+npm run dev
 ```
+
+Or run the halves separately: `npm run dev:backend` (gateway + microservices,
+TypeORM auto-syncs the schema in dev) and `npm run dev:frontend` (Eventra on
+:3100).
 
 | Surface          | URL                              |
 |------------------|----------------------------------|
@@ -73,10 +72,9 @@ npm run dev -- -p 3100
 
 Port `3100` matches the gateway's default CORS allow-list (`ALLOWED_ORIGINS`).
 
-> The older `apps/frontend/src` (Next.js 14) is **deprecated**. The active,
-> user-facing app is `apps/frontend/it-event-platfome` (Next.js 16, React 19,
-> Tailwind 4). The root `npm run dev:frontend` runs the *old* app — don't use
-> it for the demo.
+> The frontend is **Eventra** at `apps/frontend` (Next.js 16, React 19,
+> Tailwind 4), an npm workspace named `it-event-platfome`. `npm run dev` and
+> `npm run dev:frontend` both run it.
 
 ---
 
@@ -117,9 +115,8 @@ apps/
 ├── networking-service/   # searchable attendee directory
 ├── file-service/         # S3 uploads — built, not surfaced (needs real
 │                         #   S3 + a multipart-capable gateway path)
-└── frontend/
-    ├── it-event-platfome/  # ACTIVE — Next.js 16 organizer + attendee app
-    └── src/                # deprecated Next.js 14 app
+└── frontend/             # Eventra — Next.js 16 organizer + attendee app
+                          #   (workspace name: it-event-platfome)
 
 packages/
 ├── shared/    # shared TS types, enums (UserRole, EventStatus, …)

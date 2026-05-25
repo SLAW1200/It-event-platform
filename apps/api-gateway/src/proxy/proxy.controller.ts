@@ -1,3 +1,5 @@
+// Gateway routing table — every /api/v1/... URL is reverse-proxied to a
+// service. New resource = add a handler below, guarded unless it's public.
 import {
   All, Controller, Req, Res, Param, UseGuards, Logger,
 } from '@nestjs/common';
@@ -5,7 +7,7 @@ import { Request, Response } from 'express';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { ProxyService } from './proxy.service';
 
-// Public routes that don't require authentication
+// Reference list only — the real exemption is the absence of @UseGuards below.
 const PUBLIC_ROUTES = [
   '/api/v1/auth/login',
   '/api/v1/auth/register',
@@ -18,11 +20,8 @@ export class ProxyController {
 
   constructor(private readonly proxyService: ProxyService) {}
 
-  // ── Public (unauthenticated) surface ──────────────────────────────────────
-  // The attendee-facing event page and self-registration must work without a
-  // login. These routes carry no JwtAuthGuard and rewrite onto the dedicated
-  // public service endpoints (which only expose live events / safe fields).
-
+  // Public surface — no guard. The attendee event page + self-registration
+  // work without a login, rewritten onto the services' dedicated public routes.
   @All('public/events/:id')
   publicEventProxy(
     @Param('id') id: string,
@@ -47,6 +46,8 @@ export class ProxyController {
     );
   }
 
+  // Auth endpoints (login/register/refresh) live on user-service and must
+  // stay unauthenticated — that's where new tokens come from.
   @All(['auth', 'auth/*'])
   authProxy(@Req() req: Request, @Res() res: Response) {
     return this.proxyService.forward(req, res, 'user-service');

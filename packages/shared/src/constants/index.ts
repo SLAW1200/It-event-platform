@@ -1,3 +1,7 @@
+// Cross-service constants. Keeping the literal names here avoids typos that
+// would silently break routing (a misspelled queue name just drops messages).
+
+// Microservice client names used by ClientsModule.register / the gateway router.
 export const SERVICES = {
   USER: 'USER_SERVICE',
   EVENT: 'EVENT_SERVICE',
@@ -12,6 +16,7 @@ export const SERVICES = {
   NETWORKING: 'NETWORKING_SERVICE',
 } as const;
 
+// Producers and consumers must agree on these exact strings.
 export const QUEUES = {
   EMAIL: 'email_queue',
   NOTIFICATION: 'notification_queue',
@@ -19,6 +24,7 @@ export const QUEUES = {
   REGISTRATION: 'registration_queue',
 } as const;
 
+// Broker topics, named <aggregate>.<past-tense-verb>.
 export const EVENTS = {
   USER_REGISTERED: 'user.registered',
   USER_UPDATED: 'user.updated',
@@ -32,6 +38,7 @@ export const EVENTS = {
   PAYMENT_COMPLETED: 'payment.completed',
 } as const;
 
+// Redis key builders — functions so the format stays identical on every read/write.
 export const CACHE_KEYS = {
   USER: (id: string) => `user:${id}`,
   EVENT: (id: string) => `event:${id}`,

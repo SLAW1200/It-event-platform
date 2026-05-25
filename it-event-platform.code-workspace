@@ -15,48 +15,46 @@
     { "name": "🤝 Networking Service", "path": "apps/networking-service" },
     { "name": "🖥️ Frontend", "path": "apps/frontend" },
     { "name": "📦 Shared", "path": "packages/shared" },
-    { "name": "🗄️ Database", "path": "packages/database" }
+    { "name": "🗄️ Database", "path": "packages/database" },
   ],
   "settings": {
     // Editor
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit"
+      "source.fixAll.eslint": "explicit",
     },
     "editor.tabSize": 2,
     "editor.rulers": [100],
 
     // TypeScript
-    "typescript.preferences.importModuleSpecifier": "relative",
-    "typescript.updateImportsOnFileMove.enabled": "always",
-    "typescript.suggest.autoImports": true,
+    "js/ts.preferences.importModuleSpecifier": "relative",
+    "js/ts.updateImportsOnFileMove.enabled": "always",
+    "js/ts.suggest.autoImports": true,
 
     // Files
     "files.exclude": {
       "**/node_modules": true,
       "**/dist": true,
       "**/.turbo": true,
-      "**/.next": true
+      "**/.next": true,
     },
     "search.exclude": {
       "**/node_modules": true,
       "**/dist": true,
-      "**/.next": true
+      "**/.next": true,
     },
 
     // NestJS / Decorators
     "javascript.implicitProjectConfig.experimentalDecorators": true,
 
     // Tailwind
-    "tailwindCSS.experimental.classRegex": [
-      ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-    ],
+    "tailwindCSS.experimental.classRegex": [["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]],
 
     // Terminal
     "terminal.integrated.env.linux": { "NODE_ENV": "development" },
     "terminal.integrated.env.osx": { "NODE_ENV": "development" },
-    "terminal.integrated.env.windows": { "NODE_ENV": "development" }
+    "terminal.integrated.env.windows": { "NODE_ENV": "development" },
   },
   "extensions": {
     "recommendations": [
@@ -91,7 +89,7 @@
       // Utils
       "streetsidesoftware.code-spell-checker",
       "usernamehw.errorlens",
-      "oderwat.indent-rainbow"
-    ]
-  }
+      "oderwat.indent-rainbow",
+    ],
+  },
 }

@@ -1,3 +1,6 @@
+// Socket.IO gateway for real-time check-in events. Clients connect to the
+// `/checkin` namespace, then join a per-event room (`event:<id>`) so each
+// organiser only receives broadcasts for their own event.
 import {
   WebSocketGateway, WebSocketServer,
   SubscribeMessage, MessageBody, ConnectedSocket,
@@ -19,6 +22,8 @@ export class CheckInGateway implements OnGatewayConnection, OnGatewayDisconnect 
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
+  // Clients call `socket.emit('join-event', eventId)` after connecting so the
+  // server can scope subsequent broadcasts to their event.
   @SubscribeMessage('join-event')
   handleJoinEvent(
     @MessageBody() eventId: number,
@@ -38,6 +43,9 @@ export class CheckInGateway implements OnGatewayConnection, OnGatewayDisconnect 
     return { left: true, eventId };
   }
 
+  // Called by CheckInService after a successful scan. `to(room).emit` only
+  // delivers to sockets that have joined the room — every other event's
+  // dashboard ignores this broadcast.
   emitCheckIn(eventId: number, data: Record<string, any>) {
     this.server.to(`event:${eventId}`).emit('check-in', {
       ...data,

@@ -1,3 +1,5 @@
+// On create() we set an SLA due-date from priority and ping Slack so on-call
+// sees the ticket right away. findBreachedSLA drives the "past SLA" view.
 import {
   Injectable, NotFoundException, Logger,
 } from '@nestjs/common';
@@ -10,8 +12,6 @@ import {
 import { SupportTicket } from '@event-platform/database';
 import { TicketStatus, TicketPriority } from '@event-platform/shared';
 
-// Decorators are required: the global ValidationPipe runs `whitelist: true`,
-// which strips any property without a validation decorator.
 export class CreateTicketDto {
   @IsOptional() @IsNumber() eventId?: number;
   @IsNumber() userId: number;
@@ -74,6 +74,8 @@ export class TicketsService {
 
   async reply(id: number, dto: ReplyDto): Promise<SupportTicket> {
     const ticket = await this.findOne(id);
+    // Stamp first-response time once — drives the "time to first response"
+    // SLA metric. Internal notes still count as a response, by design.
     if (!ticket.firstResponseAt) {
       ticket.firstResponseAt = new Date();
     }
@@ -135,6 +137,9 @@ export class TicketsService {
     return { total, open, inProgress, resolved, closed };
   }
 
+  // SLA target by priority. Adjust here if business rules change — `slaDueAt`
+  // is set once on create() and never recomputed, so historical tickets
+  // keep their original SLA target even if these hours change later.
   private calculateSLA(priority: TicketPriority): Date {
     const hours = { low: 72, medium: 24, high: 8, critical: 2 };
     const due = new Date();

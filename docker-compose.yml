@@ -324,7 +324,10 @@ services:
     depends_on:
       - api-gateway
     volumes:
-      - ./apps/frontend/src:/app/src
+      # Eventra (Next.js App Router) keeps source under app/, not src/.
+      # NOTE: apps/frontend has no Dockerfile yet — `npm run dev` is the
+      # supported way to run the frontend; add a Dockerfile to containerize.
+      - ./apps/frontend/app:/app/app
 
 volumes:
   postgres_data:

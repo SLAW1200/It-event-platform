@@ -1,4 +1,6 @@
-// ─── main.ts ──────────────────────────────────────────────────────────────────
+// Bootstrap for registration-service. Owns the `registrations` and
+// `form_fields` tables plus the rules engine that decides pricing/visibility
+// at signup time, and brokers Stripe payment intents + webhooks.
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';

@@ -1,3 +1,5 @@
+// CRUD service over the `users` table. Owns password hashing on write and
+// scrubs the hash from every response shape.
 import {
   Injectable, NotFoundException, ConflictException, Logger,
 } from '@nestjs/common';
@@ -23,6 +25,8 @@ export class UsersService {
     if (existing) throw new ConflictException('Email already registered');
 
     const { password, ...rest } = dto;
+    // bcrypt cost factor 10 ≈ ~50ms hash on modern hardware — slow enough to
+    // resist offline cracking, fast enough not to bottleneck signup.
     const passwordHash = await bcrypt.hash(password, 10);
     const user = this.userRepo.create({ ...rest, passwordHash });
     const saved = await this.userRepo.save(user);
@@ -31,6 +35,11 @@ export class UsersService {
     return saved;
   }
 
+  /**
+   * Special read path that includes the password hash. Used only by the
+   * login flow — every other read must go through findOne/findByEmail so
+   * the hash never accidentally appears in an API response.
+   */
   async findByEmailWithPassword(email: string): Promise<User | null> {
     return this.userRepo
       .createQueryBuilder('user')
@@ -43,6 +52,8 @@ export class UsersService {
     const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'DESC' } = query;
     const skip = (page - 1) * limit;
 
+    // Array-of-conditions = OR in TypeORM. Free-text search hits firstName,
+    // lastName, email, or company with case-insensitive partial match.
     const where = search
       ? [
           { firstName: ILike(`%${search}%`) },
@@ -99,6 +110,8 @@ export class UsersService {
     return this.userRepo.save(users);
   }
 
+  // Powers the admin dashboard summary tile. Raw query because TypeORM's
+  // entity mapping would otherwise try to materialise full User rows.
   async countByRole(): Promise<Record<string, number>> {
     const result = await this.userRepo
       .createQueryBuilder('user')

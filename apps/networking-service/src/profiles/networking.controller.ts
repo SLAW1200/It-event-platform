@@ -1,3 +1,5 @@
+// HTTP routes for the networking module: profile directory + match
+// suggestions + meeting scheduling. Mounted at `/networking`.
 import {
   Controller, Get, Put, Post, Patch,
   Body, Param, ParseIntPipe, Query,
